@@ -18,13 +18,25 @@ class menu extends component\login {
     }
 
     /**
-     * Func: getSystemInit
+     * Func: index
+     * User: Force
+     * Date: 2021/4/4
+     * Time: 20:30
+     * Desc: 菜单设置
+     */
+    public function index() {
+
+        v();
+    }
+
+    /**
+     * Func: system_init
      * User: Force
      * Date: 2021/4/4
      * Time: 19:05
-     * Desc: 获取初始化数据
+     * Desc: 获取菜单初始化数据
      */
-    public function getSystemInit() {
+    public function system_init() {
 
         $systemInit = [
             'homeInfo' => [
@@ -35,7 +47,7 @@ class menu extends component\login {
                 'title' => 'poemAdmin',
                 'image' => '/static/layuimini/images/logo.png',
             ],
-            'menuInfo' => $this->getMenuList(),
+            'menuInfo' => $this->get_menu_list(),
         ];
 
         echo json_encode($systemInit);
@@ -43,13 +55,13 @@ class menu extends component\login {
     }
 
     /**
-     * Func: getMenuList
+     * Func: get_menu_list
      * User: Force
      * Date: 2021/4/4
      * Time: 19:05
      * Desc: 获取菜单列表
      */
-    private function getMenuList() {
+    private function get_menu_list() {
 
         $menuList = m('sys_menu')
             ->field('id,pid,title,icon,href,target')
@@ -58,7 +70,7 @@ class menu extends component\login {
             ])
             ->order('sort', 'desc')
             ->select();
-        $menuList = $this->buildMenuChild(0, $menuList);
+        $menuList = $this->build_menu_child(0, $menuList);
         return $menuList;
     }
 
@@ -69,7 +81,7 @@ class menu extends component\login {
      * Time: 19:05
      * Desc: 递归获取子菜单
      */
-    private function buildMenuChild($pid, $menuList) {
+    private function build_menu_child($pid, $menuList) {
 
         $treeList = [];
 
@@ -78,7 +90,7 @@ class menu extends component\login {
             if ($pid == $v['pid']) {
 
                 $node = $v;
-                $child = $this->buildMenuChild($v['id'], $menuList);
+                $child = $this->build_menu_child($v['id'], $menuList);
 
                 if (!empty($child)) {
                     $node['child'] = $child;
