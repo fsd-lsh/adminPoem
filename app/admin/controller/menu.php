@@ -12,6 +12,7 @@ class menu extends component\login {
 
     /**
      * menu constructor.
+     * @throws \Exception
      */
     public function __construct() {
         parent::__construct(1, 'admin');
@@ -26,6 +27,52 @@ class menu extends component\login {
      */
     public function index() {
 
+        //API
+        sys_api([
+
+            //菜单列表数据加载
+            'lists' => function() {
+
+                //获取菜单数据
+                $menu_lists = m('sys_menu')
+                    ->order('sort asc')
+                    ->select();
+                if(empty($menu_lists) || !is_array($menu_lists)) {
+                    ajax(0, '菜单数据加载失败');
+                }
+
+                //数据格式化
+                $data = [];
+                foreach ($menu_lists as $key => $item) {
+
+                    $data[] = [
+                        'id' => $item['id'],
+                        'pid' => $item['pid'],
+                        'title' => $item['title'],
+                        'icon' => $item['icon'],
+                        'href' => $item['href'],
+                        'target' => $item['target'],
+                        'sort' => $item['sort'],
+                        'status' => $item['status'],
+                        'remark' => $item['remark'],
+                        'ctime' => date('Y-m-d H:i:s', $item['ctime']),
+                        'utime' => date('Y-m-d H:i:s', $item['utime']),
+                        'dtime' => date('Y-m-d H:i:s', $item['dtime']),
+                    ];
+                }
+
+                //响应
+                echo json_encode([
+                    'code' => 0,
+                    'msg' => '',
+                    'count' => count($data),
+                    'data' => $data
+                ]);
+                exit;
+            },
+        ]);
+
+        //渲染视图
         v();
     }
 
@@ -41,7 +88,7 @@ class menu extends component\login {
         $systemInit = [
             'homeInfo' => [
                 'title' => '首页',
-                'href'  => 'page/welcome-1.html?t=1',
+                'href'  => '/admin/dash/main',
             ],
             'logoInfo' => [
                 'title' => 'poemAdmin',

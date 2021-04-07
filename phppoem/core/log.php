@@ -65,7 +65,7 @@ class log {
 
         $cur_file = isset($trace[$depth]['file']) ? $trace[$depth]['file'] : '';
         $cur_line = isset($trace[$depth]['line']) ? $trace[$depth]['line'] : '';
-        
+
         $level = $this->levels[$lvl];
         $time = date('Y-m-d H:i:s');
         $log = "[$level] $time $cur_file:$cur_line $str" . PHP_EOL;
@@ -89,7 +89,7 @@ class log {
         if (!is_dir($log_dir)) {
             mkdir($log_dir, 0755, true);
         }
-        
+
         $this->log_dir = $log_dir;
         $filename = date('YmdH') . '.log';
         $this->log_file = $log_dir . '/' . $filename;
@@ -121,7 +121,7 @@ class log {
                 unlink($fullpath);  ////删除文件
             }
         }
-        closedir($dh); 
+        closedir($dh);
     }
 
     /**
@@ -147,6 +147,11 @@ class log {
      * @return null
      */
     static function show() {
+
+        if(!empty(i('api'))) {
+            exit;
+        }
+
         $trace_tmp = self::$trace;
         $files     = get_included_files();
         foreach ($files as $key => $file) {
