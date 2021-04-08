@@ -1,3 +1,5 @@
 .idea
 .DS_store
 runtime
+public/static/layuimini/api
+public/static/layuimini/page
