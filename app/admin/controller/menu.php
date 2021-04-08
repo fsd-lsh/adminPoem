@@ -41,6 +41,14 @@ class menu extends component\login {
                     ajax(0, '菜单数据加载失败');
                 }
 
+                //配置
+                $config = [
+                    'status' => [
+                        0 => '暂停',
+                        1 => '启用',
+                    ],
+                ];
+
                 //数据格式化
                 $data = [];
                 foreach ($menu_lists as $key => $item) {
@@ -54,6 +62,7 @@ class menu extends component\login {
                         'target' => $item['target'],
                         'sort' => $item['sort'],
                         'status' => $item['status'],
+                        'status_mean' => $config['status'][$item['status']],
                         'remark' => $item['remark'],
                         'ctime' => date('Y-m-d H:i:s', $item['ctime']),
                         'utime' => date('Y-m-d H:i:s', $item['utime']),
@@ -69,6 +78,54 @@ class menu extends component\login {
                     'data' => $data
                 ]);
                 exit;
+            },
+
+            //启用、停用
+            'hot' => function() {
+
+                $id = intval(i('id'));
+                $option = i('option');
+
+                if(empty($id)) { ajax(0, 'ID不能为空'); }
+                if(empty($option)) { ajax(0, '启用或停用？'); }
+
+                switch ($option) {
+                    case 'start': { $status = 1; $info = '启用'; break; }
+                    case 'stop': { $status = 0; $info = '停用'; break; }
+                }
+
+                $result = m('sys_menu')
+                    ->where([
+                        'id' => $id
+                    ])
+                    ->update([
+                        'status' => $status
+                    ]);
+
+                if($result) {
+                    ajax(1, $info.'成功');
+                }else {
+                    ajax(0, $info.'失败');
+                }
+            },
+
+            //删除菜单
+            'del' => function() {
+
+                $id = intval(i('id'));
+                if(empty($id)) { ajax(0, 'ID不能为空'); }
+
+                $result = m('sys_menu')
+                    ->where([
+                        'id' => $id
+                    ])
+                    ->delete();
+
+                if($result) {
+                    ajax(1, '删除成功');
+                }else {
+                    ajax(0, '删除失败');
+                }
             },
         ]);
 

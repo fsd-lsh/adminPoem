@@ -6,10 +6,10 @@
     <div class="layuimini-main">
         <div>
             <div class="layui-btn-group">
-                <button class="layui-btn" id="btn-expand">全部展开</button>
-                <button class="layui-btn layui-btn-warm" id="btn-fold">全部折叠</button>
-                <button class="layui-btn layui-btn-normal" id="add-menu">添加一级菜单</button>
-                <button class="layui-btn layui-btn-danger" id="batch-del">批量删除</button>
+                <button class="layui-btn layui-btn-primary layui-border-green" id="btn-expand">全部展开</button>
+                <button class="layui-btn layui-btn-primary layui-border-black" id="btn-fold">全部折叠</button>
+                <button class="layui-btn layui-btn-normal" id="add-menu" title="添加一级菜单">添加菜单</button>
+                <button class="layui-btn layui-btn-danger" id="batch-del" title="批量删除">批量删除</button>
             </div>
             <table id="menu-table" class="layui-table" lay-filter="menu-table"></table>
         </div>
@@ -20,6 +20,12 @@
 <script type="text/html" id="auth-state">
     <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="add" title="在此菜单添加下级菜单">添加</a>
     <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="edit">修改</a>
+    {{# if (d.status == 1) { }}
+        <a class="layui-btn layui-btn-warm layui-btn-xs" lay-event="stop">禁用</a>
+    {{# } }}
+    {{# if (d.status == 0) { }}
+        <a class="layui-btn layui-btn-xs" lay-event="start">启用</a>
+    {{# } }}
     <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
 </script>
 
@@ -43,7 +49,7 @@
             page: false,
             cols: [[
                 {type: 'numbers'},
-                {templet: '#auth-state', width: 200, align: 'center', title: '操作'},
+                {templet: '#auth-state', width: 230, align: 'center', title: '操作'},
                 {field: 'title', title: '名称', width: 250},
                 {field: 'id', title: 'ID', width: 60},
                 {field: 'pid', title: '父ID', width: 60},
@@ -51,7 +57,7 @@
                 {field: 'href', title: '链接', width: 200},
                 {field: 'target', title: '打开方式'},
                 {field: 'sort', title: '排序'},
-                {field: 'status', title: '状态'},
+                {field: 'status_mean', title: '状态'},
                 // {field: 'remark', title: '备注'},
                 // {field: 'ctime', title: '创建时间'},
                 // {field: 'utime', title: '更新时间'},
@@ -77,10 +83,84 @@
             var data = obj.data;
             var layEvent = obj.event;
 
-            if (layEvent === 'del') {
-                layer.msg('删除' + data.id);
-            } else if (layEvent === 'edit') {
-                layer.msg('修改' + data.id);
+            switch (layEvent) {
+
+                //启用 或 停用
+                case 'start':
+                case 'stop': {
+                    $.ajax({
+                        url: '/admin/menu?api=hot',
+                        type: 'POST',
+                        dataType: 'JSON',
+                        data: { id:data.id, option:layEvent },
+                        success: function (res) {
+                            layer.msg(res.info);
+                            if(res.code === 1) {
+                                setTimeout(function () {
+                                    window.location.reload();
+                                }, 1200);
+                            }
+                        }
+                    });
+                    break;
+                }
+
+                //删除
+                case 'del': {
+                    layer.confirm('确定要删除吗?', {icon: 3, title:'提示'}, function(index){
+                        layer.close(index);
+                        $.ajax({
+                            url: '/admin/menu?api=del',
+                            type: 'POST',
+                            dataType: 'JSON',
+                            data: { id:data.id },
+                            success: function (res) {
+                                layer.msg(res.info);
+                                if(res.code === 1) {
+                                    window.location.reload();
+                                }
+                            }
+                        });
+                    });
+                    break;
+                }
+
+                //编辑
+                case 'edit': {
+                    layer.open({
+                        type: 1
+                        ,title: '编辑菜单'
+                        ,closeBtn: false
+                        ,area: '800px;'
+                        ,shade: 0.8
+                        ,id: 'LAY_layuipro' //设定一个id，防止重复弹出
+                        ,btn: ['确认', '关闭']
+                        ,btnAlign: 'r'
+                        ,moveType: 1 //拖拽模式，0或者1
+                        ,content: `
+                            <style>
+                                .edit-menu {  }
+                            </style>
+                            <form class="layui-form edit-menu" action="">
+                                <div class="layui-form-item">
+                                    <label class="layui-form-label">单行输入框</label>
+                                    <div class="layui-input-block">
+                                        <input type="text" name="title" lay-verify="title" autocomplete="off" placeholder="请输入标题" class="layui-input">
+                                    </div>
+                                </div>
+                                <div class="layui-form-item">
+                                    <label class="layui-form-label">验证必填项</label>
+                                    <div class="layui-input-block">
+                                        <input type="text" name="username" lay-verify="required" lay-reqtext="用户名是必填项，岂能为空？" placeholder="请输入" autocomplete="off" class="layui-input">
+                                    </div>
+                                </div>
+                            </form>
+                        `
+                        ,success: function(e){
+
+                        }
+                    });
+                }
             }
         });
     });
