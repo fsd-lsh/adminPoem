@@ -35,6 +35,9 @@ class menu extends component\login {
 
                 //获取菜单数据
                 $menu_lists = m('sys_menu')
+                    ->where([
+                        'status' => ['!=', 0]
+                    ])
                     ->order('sort asc')
                     ->select();
                 if(empty($menu_lists) || !is_array($menu_lists)) {
@@ -44,8 +47,9 @@ class menu extends component\login {
                 //配置
                 $config = [
                     'status' => [
-                        0 => '暂停',
+                        0 => '删除',
                         1 => '启用',
+                        2 => '停用',
                     ],
                 ];
 
@@ -91,7 +95,7 @@ class menu extends component\login {
 
                 switch ($option) {
                     case 'start': { $status = 1; $info = '启用'; break; }
-                    case 'stop': { $status = 0; $info = '停用'; break; }
+                    case 'stop': { $status = 2; $info = '停用'; break; }
                 }
 
                 $result = m('sys_menu')
@@ -119,7 +123,9 @@ class menu extends component\login {
                     ->where([
                         'id' => $id
                     ])
-                    ->delete();
+                    ->update([
+                        'status' => 0,
+                    ]);
 
                 if($result) {
                     ajax(1, '删除成功');

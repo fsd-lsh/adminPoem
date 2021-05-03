@@ -26,7 +26,7 @@
     {{# if (d.status == 1) { }}
         <a class="layui-btn layui-btn-warm layui-btn-xs" lay-event="stop">禁用</a>
     {{# } }}
-    {{# if (d.status == 0) { }}
+    {{# if (d.status == 2) { }}
         <a class="layui-btn layui-btn-xs" lay-event="start">启用</a>
     {{# } }}
     <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
@@ -51,7 +51,7 @@
             url: '/admin/menu?api=lists',
             page: false,
             cols: [[
-                {type: 'numbers'},
+                {type: 'numbers', title: '序号'},
                 {templet: '#auth-state', width: 230, align: 'center', title: '操作'},
                 {field: 'title', title: '名称', width: 250},
                 {field: 'id', title: 'ID', width: 60},
