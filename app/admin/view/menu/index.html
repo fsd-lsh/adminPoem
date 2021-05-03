@@ -2,14 +2,17 @@
 
 <include "../public/head_mini"/>
 
+<style>
+    #LAY_layuipro { padding:30px 60px 10px 30px; }
+</style>
+
 <div class="layuimini-container">
     <div class="layuimini-main">
         <div>
             <div class="layui-btn-group">
                 <button class="layui-btn layui-btn-primary layui-border-green" id="btn-expand">全部展开</button>
                 <button class="layui-btn layui-btn-primary layui-border-black" id="btn-fold">全部折叠</button>
-                <button class="layui-btn layui-btn-normal" id="add-menu" title="添加一级菜单">添加菜单</button>
-                <button class="layui-btn layui-btn-danger" id="batch-del" title="批量删除">批量删除</button>
+                <button class="layui-btn layui-btn-normal" id="add-menu" title="添加一级菜单" lay-event="add">添加菜单</button>
             </div>
             <table id="menu-table" class="layui-table" lay-filter="menu-table"></table>
         </div>
@@ -125,8 +128,15 @@
                     break;
                 }
 
+                //添加
+                case 'add': {
+                    console.log(data);
+                    break;
+                }
+
                 //编辑
                 case 'edit': {
+
                     layer.open({
                         type: 1
                         ,title: '编辑菜单'
@@ -141,23 +151,68 @@
                             <style>
                                 .edit-menu {  }
                             </style>
-                            <form class="layui-form edit-menu" action="">
+                            <form id="save-menu" class="layui-form edit-menu" action="">
+                                <input name="id" type="hidden" value="`+data.id+`">
                                 <div class="layui-form-item">
-                                    <label class="layui-form-label">单行输入框</label>
+                                    <label class="layui-form-label">菜单名称</label>
                                     <div class="layui-input-block">
-                                        <input type="text" name="title" lay-verify="title" autocomplete="off" placeholder="请输入标题" class="layui-input">
+                                        <input type="text" name="title" autocomplete="off" placeholder="请输入菜单名称" class="layui-input" value="`+data.title+`">
                                     </div>
                                 </div>
                                 <div class="layui-form-item">
-                                    <label class="layui-form-label">验证必填项</label>
+                                    <label class="layui-form-label">父级ID</label>
                                     <div class="layui-input-block">
-                                        <input type="text" name="username" lay-verify="required" lay-reqtext="用户名是必填项，岂能为空？" placeholder="请输入" autocomplete="off" class="layui-input">
+                                        <input type="number" name="pid" placeholder="请输入父级ID" autocomplete="off" class="layui-input" value="`+data.pid+`">
+                                    </div>
+                                </div>
+                                <div class="layui-form-item">
+                                    <label class="layui-form-label">图标</label>
+                                    <div class="layui-input-block">
+                                        <input type="text" name="icon" placeholder="请输入图标代码" autocomplete="off" class="layui-input" value="`+data.icon+`">
+                                    </div>
+                                </div>
+                                <div class="layui-form-item">
+                                    <label class="layui-form-label">链接</label>
+                                    <div class="layui-input-block">
+                                        <input type="text" name="href" placeholder="请输入链接" autocomplete="off" class="layui-input" value="`+data.href+`">
+                                    </div>
+                                </div>
+                                <div class="layui-form-item">
+                                    <label class="layui-form-label">打开方式</label>
+                                    <div class="layui-input-block">
+                                        <input type="text" name="target" placeholder="请输入打开方式" autocomplete="off" class="layui-input" value="`+data.target+`">
+                                    </div>
+                                </div>
+                                <div class="layui-form-item">
+                                    <label class="layui-form-label">排序</label>
+                                    <div class="layui-input-block">
+                                        <input type="number" name="sort" placeholder="请输入排序数值" autocomplete="off" class="layui-input" value="`+data.sort+`">
                                     </div>
                                 </div>
                             </form>
                         `
                         ,success: function(e){
 
+                        },
+                        yes: function(index, layero){
+
+                            var form = $('#save-menu').serialize();
+
+                            $.ajax({
+                                url: '/admin/menu?api=save',
+                                type: 'POST',
+                                dataType: 'JSON',
+                                data: form,
+                                success: function (res) {
+                                    layer.msg(res.info);
+                                    if(res.code === 1) {
+                                        setTimeout(function () {
+                                            window.location.reload();
+                                        }, 1200);
+                                        layer.close(index);
+                                    }
+                                }
+                            });
                         }
                     });
                 }

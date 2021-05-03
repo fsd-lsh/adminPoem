@@ -127,6 +127,51 @@ class menu extends component\login {
                     ajax(0, '删除失败');
                 }
             },
+
+            //保存菜单
+            'save' => function() {
+
+                $id = intval(i('id'));
+                $data = [];
+                if(i('title')) {
+                    $data['title'] = i('title');
+                }
+                if(is_numeric(intval(i('pid')))) {
+                    $data['pid'] = intval(i('pid'));
+                }
+                if(i('icon')) {
+                    $data['icon'] = i('icon');
+                }
+                if(i('href')) {
+                    $data['href'] = i('href');
+                }
+                if(i('target')) {
+                    $data['target'] = i('target');
+                }
+                if(is_numeric(intval(i('sort')))) {
+                    $data['sort'] = intval(i('sort'));
+                }
+
+                if(empty($id)) { ajax(0, 'ID不能为空'); }
+                if(empty($data['title'])) { ajax(0, 'title不能为空'); }
+                if(!is_numeric($data['pid'])) { ajax(0, 'pid不是一个数值'); }
+                if(empty($data['href'])) { ajax(0, 'href不能为空'); }
+                if(empty($data['target'])) { ajax(0, 'target不能为空'); }
+                if(!is_numeric($data['sort'])) { ajax(0, 'sort不是一个数值'); }
+                if(empty($data)) { ajax(0, '请检查表单是否填写完整'); }
+
+                $result = m('sys_menu')
+                    ->where([
+                        'id' => $id,
+                    ])
+                    ->update($data);
+
+                if($result) {
+                    ajax(1, '修改菜单成功');
+                }else {
+                    ajax(0, '修改菜单失败');
+                }
+            },
         ]);
 
         //渲染视图
