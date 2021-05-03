@@ -12,7 +12,7 @@
             <div class="layui-btn-group">
                 <button class="layui-btn layui-btn-primary layui-border-green" id="btn-expand">全部展开</button>
                 <button class="layui-btn layui-btn-primary layui-border-black" id="btn-fold">全部折叠</button>
-                <button class="layui-btn layui-btn-normal" id="add-menu" title="添加一级菜单" lay-event="add">添加菜单</button>
+                <button class="layui-btn layui-btn-normal" id="add-menu-btn" title="添加一级菜单">添加一级菜单</button>
             </div>
             <table id="menu-table" class="layui-table" lay-filter="menu-table"></table>
         </div>
@@ -65,8 +65,33 @@
                 // {field: 'ctime', title: '创建时间'},
                 // {field: 'utime', title: '更新时间'},
             ]],
-            done: function () {
+            done: function (res, curr, count) {
+
                 layer.closeAll('loading');
+
+                res.data.forEach(function (item, index) {
+
+                    if (item.status === '1') {
+
+                        $('div[lay-id="menu-table"]').
+                        find('tr[data-index="' + index + '"]').
+                        find('td[data-field="status_mean"]').
+                        css({
+                            'background-color': '#009688',
+                            'color': '#fff',
+                        });
+
+                    }else {
+
+                        $('div[lay-id="menu-table"]').
+                        find('tr[data-index="' + index + '"]').
+                        find('td[data-field="status_mean"]').
+                        css({
+                            'background-color': '#FF5722',
+                            'color': '#fff',
+                        });
+                    }
+                });
             }
         });
 
@@ -128,9 +153,10 @@
                     break;
                 }
 
-                //添加
+                //添加子菜单
                 case 'add': {
-                    console.log(data);
+
+                    add_menu('sub', data);
                     break;
                 }
 
@@ -218,5 +244,94 @@
                 }
             }
         });
+
+        //添加一级菜单
+        $(document).on('click', '#add-menu-btn', function () {
+            add_menu('main');
+        });
+
+        //添加菜单
+        function add_menu(type, data) {
+
+            var pid = 0;
+
+            if(type === 'sub') {
+                pid = data.id;
+            }
+
+            layer.open({
+                type: 1
+                ,title: '添加菜单'
+                ,closeBtn: false
+                ,area: '800px;'
+                ,shade: 0.8
+                ,id: 'LAY_layuipro' //设定一个id，防止重复弹出
+                ,btn: ['确认', '关闭']
+                ,btnAlign: 'r'
+                ,moveType: 1 //拖拽模式，0或者1
+                ,content: `
+                    <form id="add-menu" class="layui-form edit-menu" action="">
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">菜单名称</label>
+                            <div class="layui-input-block">
+                                <input type="text" name="title" autocomplete="off" placeholder="请输入菜单名称" class="layui-input">
+                            </div>
+                        </div>
+                        <div class="layui-form-item" style="display:none">
+                            <label class="layui-form-label">父级ID</label>
+                            <div class="layui-input-block">
+                                <input type="number" name="pid" placeholder="请输入父级ID" autocomplete="off" class="layui-input" value="`+pid+`">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">图标</label>
+                            <div class="layui-input-block">
+                                <input type="text" name="icon" placeholder="请输入图标代码" autocomplete="off" class="layui-input">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">链接</label>
+                            <div class="layui-input-block">
+                                <input type="text" name="href" placeholder="请输入链接" autocomplete="off" class="layui-input">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">打开方式</label>
+                            <div class="layui-input-block">
+                                <input type="text" name="target" placeholder="请输入打开方式" autocomplete="off" class="layui-input">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">排序</label>
+                            <div class="layui-input-block">
+                                <input type="number" name="sort" placeholder="请输入排序数值" autocomplete="off" class="layui-input">
+                            </div>
+                        </div>
+                    </form>
+                `
+                ,
+                yes: function(index){
+
+                    var form = $('#add-menu').serialize();
+
+                    $.ajax({
+                        url: '/admin/menu?api=add',
+                        type: 'POST',
+                        dataType: 'JSON',
+                        data: form,
+                        success: function (res) {
+                            layer.msg(res.info);
+                            if(res.code === 1) {
+                                setTimeout(function () {
+                                    window.location.reload();
+                                }, 1200);
+                                layer.close(index);
+                            }
+                        }
+                    });
+                }
+            });
+        }
+
     });
 </script>
